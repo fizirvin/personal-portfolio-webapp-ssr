@@ -6,14 +6,14 @@ import { createBrowserHistory } from 'history';
 
 
 import App from './app.js'
-import './index.css'
+
 
 const history = createBrowserHistory();
 
 console.log('hola mundo')
 
-ReactDOM.render(
+ReactDOM.hydrate(
     <Router history={history}>
-        <App></App>
-    </Router>, document.getElementById('app')
+        <App/>
+    </Router>,document.getElementById('app')
 );

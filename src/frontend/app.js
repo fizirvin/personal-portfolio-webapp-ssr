@@ -5,6 +5,8 @@ import Layout from './containers/Layout.jsx'
 import Home from './components/Home.jsx'
 import NotFound from './containers/NotFound.jsx'
 
+import './index.css'
+
 const App = () => (
     <BrowserRouter>
       <Layout>

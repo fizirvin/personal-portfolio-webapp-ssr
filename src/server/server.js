@@ -1,13 +1,15 @@
 import express from 'express';
+import dotenv from 'dotenv';
 import webpack from 'webpack';
+import helmet from 'helmet';
 import React from 'react';
 import { renderToString } from 'react-dom/server';
 import { renderRoutes } from 'react-router-config';
 import { StaticRouter } from 'react-router-dom';
-
 import serverRoutes from '../frontend/routes/serverRoutes.js';
+import getManifest from './getManifest';
 
-require('dotenv').config()
+dotenv.config();
 
 const { ENV, PORT } = process.env;
 
@@ -24,19 +26,34 @@ if (ENV === 'development') {
 
     app.use(webpackDevMiddleware(compiler, serverConfig));
     app.use(webpackHotMiddleware(compiler));
+} else {
+  app.use((req, res, next) => {
+    if (!req.hashManifest) req.hashManifest = getManifest();
+    next();
+  });
+  app.use(express.static(`${__dirname}/public`));
+  app.use(helmet());
+  app.use(helmet.permittedCrossDomainPolicies());
+  app.disable('x-powered-by');
+
 }
 
-const setResponse = (html) =>{
+const setResponse = (html, manifest) => {
+  const mainStyles = manifest ? manifest['main.css'] : 'assets/app.css';
+  const mainBuild = manifest ? manifest['main.js'] : 'assets/app.js';
+  const vendorBuild = manifest ? manifest['vendors.js'] : 'assets/vendor.js';
+
   return (`
     <!DOCTYPE html>
     <html>
       <head>
-        <link rel="stylesheet" href="assets/app.css" type="text/css">
+      <link rel="stylesheet" href="${mainStyles}" type="text/css">
         <title>Personal Portfolio</title>
       </head>
       <body>
         <div id="app">${html}</div>
-        <script src="assets/app.js" type="text/javascript"></script>
+        <script src="${mainBuild}" type="text/javascript"></script>
+        <script src="${vendorBuild}" type="text/javascript"></script>
       </body>
     </html>
   `)
@@ -52,7 +69,7 @@ const renderApp = ( req, res) =>{
     </StaticRouter>
   );
 
-  res.send(setResponse(html));
+  res.send(setResponse(html, req.hashManifest));
 }
 
 
