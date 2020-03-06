@@ -3,7 +3,7 @@ import React from 'react';
 class Home extends React.Component {
 
     exampleMethod(){
-        console.log('JS is running');
+        console.log("js is running");
     }
     render(){
         return(
