@@ -1,5 +1,11 @@
 import express from 'express';
 import webpack from 'webpack';
+import React from 'react';
+import { renderToString } from 'react-dom/server';
+import { renderRoutes } from 'react-router-config';
+import { StaticRouter } from 'react-router-dom';
+
+import serverRoutes from '../frontend/routes/serverRoutes.js';
 
 require('dotenv').config()
 
@@ -20,8 +26,8 @@ if (ENV === 'development') {
     app.use(webpackHotMiddleware(compiler));
 }
 
-app.get('*', (req, res) => {
-  res.send(`
+const setResponse = (html) =>{
+  return (`
     <!DOCTYPE html>
     <html>
       <head>
@@ -29,12 +35,29 @@ app.get('*', (req, res) => {
         <title>Personal Portfolio</title>
       </head>
       <body>
-        <div id="app"></div>
+        <div id="app">${html}</div>
         <script src="assets/app.js" type="text/javascript"></script>
       </body>
     </html>
-  `);
-});
+  `)
+}
+
+
+
+const renderApp = ( req, res) =>{
+
+  const html = renderToString(
+    <StaticRouter location={req.url} context={{}}>
+      {renderRoutes(serverRoutes)}
+    </StaticRouter>
+  );
+
+  res.send(setResponse(html));
+}
+
+
+
+app.get('*', renderApp);
 
 app.listen(3000, (err) => {
   if (err) console.log(err);
