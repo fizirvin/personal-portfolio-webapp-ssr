@@ -1,25 +1,24 @@
 import React from 'react';
+import Contact from './Contact.jsx';
 
-class Home extends React.Component {
+const Home = () => {
 
-    exampleMethod(){
-        console.log("js is running");
+    function exampleMethod(){
+    console.log('js is running');
     }
-    render(){
+    
         return(
-            <div>
+            <>
                 <h1>
                     My home page
                 </h1>
                 <p>
                     Some content
                 </p>
-                <button onClick={()=>this.exampleMethod()}>Console log some text</button>
-                
-            </div>
-        )
-
-    }
-}
+                <button onClick={()=>exampleMethod()}>Console log some text</button>
+                <Contact></Contact>
+                </>
+        );  
+};
 
 export default Home;
